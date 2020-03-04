@@ -1,1 +1,5 @@
 .idea
+src/DotNetSimpleOrm/bin
+src/DotNetSimpleOrm/obj
+examples/examples/bin
+examples/examples/obj
