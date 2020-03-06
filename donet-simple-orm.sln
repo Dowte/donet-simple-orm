@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetSimpleOrm", "src\DotN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "examples", "examples\examples\examples.csproj", "{5EFA1F95-A779-4B9B-9D4A-973DD6160723}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DonNetSimpleOrmTest", "tests\DonNetSimpleOrmTest\DonNetSimpleOrmTest.csproj", "{115CB727-0296-4288-A786-6E744B22E9DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{5EFA1F95-A779-4B9B-9D4A-973DD6160723}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EFA1F95-A779-4B9B-9D4A-973DD6160723}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EFA1F95-A779-4B9B-9D4A-973DD6160723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{115CB727-0296-4288-A786-6E744B22E9DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{115CB727-0296-4288-A786-6E744B22E9DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{115CB727-0296-4288-A786-6E744B22E9DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{115CB727-0296-4288-A786-6E744B22E9DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
