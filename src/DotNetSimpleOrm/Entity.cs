@@ -14,6 +14,7 @@ namespace DotNetSimpleOrm
 
         public void Add(string tableName, string columnName, object value)
         {
+            Dirtied = true;
             GetTable(tableName)[columnName] = value;
         }
 
@@ -39,5 +40,7 @@ namespace DotNetSimpleOrm
 
             return _tables[tableName];
         }
+        
+        public bool Dirtied { get; private set; }
     }
 }

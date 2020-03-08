@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using ColumnAttribute = DotNetSimpleOrm.Model.ColumnAttribute;
 
 namespace DotNetSimpleOrm.Query
 {
@@ -40,17 +42,48 @@ namespace DotNetSimpleOrm.Query
                 return null;
             }
 
-            var tableName = _model.TableName();
-            foreach (var propertyInfo in _model.GetType().GetProperties())
+            return EntityToModel(entity);
+        }
+
+        private Model.Model EntityToModel (Entity entity)
+        {
+            var instance = (Model.Model)_model.GetType().Assembly.CreateInstance(_model.GetType().ToString());
+
+            if (instance == null)
             {
-                var refColumnName = Helper.ToSnakeCase(propertyInfo.Name);
-
-                var value = entity.GetValue(tableName, refColumnName);
-
-                propertyInfo.SetValue(_model, value);
+                throw new Exception("the model instance could not be created: " + _model.GetType());
             }
 
-            return _model;
+            var tableName = instance.TableName();
+            
+            foreach (var propertyInfo in instance.GetType().GetProperties())
+            {
+                var attrs = propertyInfo.GetCustomAttributes(false);
+                
+                if (attrs.Length <= 0) continue;
+                
+                foreach (var attr in attrs)
+                {
+                    if (!(attr is ColumnAttribute column)) continue;
+                    
+                    var refColumnName = column.Name ?? Helper.ToSnakeCase(propertyInfo.Name);
+
+                    var value = entity.GetValue(tableName, refColumnName);
+
+                    propertyInfo.SetValue(instance, value);
+                }
+            }
+            
+            instance.AfterFillByDb();
+
+            return instance;
+        }
+        
+        public List<Model.Model> FindAll()
+        {
+            var entities = ConnectorManager.GetConnector().FindAll(getSql());
+
+            return entities?.Select(EntityToModel).ToList();
         }
 
         private string getSql()
