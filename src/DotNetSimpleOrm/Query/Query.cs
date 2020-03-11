@@ -11,6 +11,8 @@ namespace DotNetSimpleOrm.Query
 
         private readonly List<WhereItem> _whereItems;
 
+        // todo register whereItem
+        
         public Query(Model.Model model)
         {
             _model = model;
@@ -36,7 +38,7 @@ namespace DotNetSimpleOrm.Query
 
         public Model.Model FindOne()
         {
-            var entity = ConnectorManager.GetConnector().FindOne(getSql());
+            var entity = ConnectorManager.GetConnector().FindOne(this);
             if (entity == null)
             {
                 return null;
@@ -81,7 +83,7 @@ namespace DotNetSimpleOrm.Query
         
         public List<Model.Model> FindAll()
         {
-            var entities = ConnectorManager.GetConnector().FindAll(getSql());
+            var entities = ConnectorManager.GetConnector().FindAll(this);
 
             return entities?.Select(EntityToModel).ToList();
         }

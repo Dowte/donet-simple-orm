@@ -3,7 +3,7 @@ using System.Data;
 using System.Linq;
 using MySql.Data.MySqlClient;
 
-namespace DotNetSimpleOrm.Connector
+namespace DotNetSimpleOrm.Connector.Mysql
 {
     public class Mysql: IConnector
     {
@@ -14,11 +14,6 @@ namespace DotNetSimpleOrm.Connector
             _connectString = connectString;
         }
         
-        public MySqlConnection GetConnection ()
-        {
-            return new MySqlConnection(_connectString);
-        }
-
         private MySqlConnection _getConnection()
         {
             var mySqlConnection = new MySqlConnection(_connectString);
@@ -27,8 +22,10 @@ namespace DotNetSimpleOrm.Connector
             return mySqlConnection;
         }
 
-        public Entity FindOne(string sql)
+        public Entity FindOne(Query.Query query)
         {
+            // todo 
+            string sql = "";
             var com = new MySqlCommand(sql, _getConnection());
 
             var mySqlDataReader = com.ExecuteReader();
@@ -53,8 +50,10 @@ namespace DotNetSimpleOrm.Connector
             return entity.Dirtied ? entity : null;
         }
 
-        public IEnumerable<Entity> FindAll(string sql)
+        public IEnumerable<Entity> FindAll(Query.Query query)
         {
+            // todo 
+            string sql = "";
             var com = new MySqlCommand(sql, _getConnection());
             
             var mySqlDataReader = com.ExecuteReader();
@@ -92,11 +91,49 @@ namespace DotNetSimpleOrm.Connector
 
             cmd.Prepare();
 
-            foreach (var column in attributes.Keys)
+            foreach (var (key, value) in attributes)
             {
-                cmd.Parameters.AddWithValue("@" + column, attributes[column]);
+                cmd.Parameters.AddWithValue("@" + key, value);
             }
 
+            cmd.ExecuteNonQuery();
+
+            model.GetPrimaryColumnProperty().SetValue(model, cmd.LastInsertedId);
+            
+            return cmd.LastInsertedId;
+        }
+
+        public long Update(Model.Model model)
+        {
+            var attributes = model.GetAttributes();
+            var oldAttributes = model.OriginAttributes;
+
+
+            var changedAttributes = new Dictionary<string, object>();
+            
+            foreach (var (columnName, value) in attributes)
+            {
+                if (!value.Equals(oldAttributes[columnName]))
+                {
+                    changedAttributes.Add(columnName, value);
+                }
+            }
+            
+            var primaryColumnName = model.GetPrimaryColumnName();
+            var cmd = new MySqlCommand {Connection = _getConnection()};
+
+            var sql = "UPDATE " + model.TableName() + " SET";
+
+            cmd.CommandText = changedAttributes.Keys.Aggregate(sql, (current, attributesKey) => current + " " + attributesKey + "=@" + attributesKey);
+            cmd.CommandText += " where " + primaryColumnName + "=@_primaryValue";
+            
+            foreach (var (key, value) in changedAttributes)
+            {
+                cmd.Parameters.AddWithValue("@" + key, value);
+            }
+            
+            cmd.Parameters.AddWithValue("_primaryValue", oldAttributes[primaryColumnName]);
+  
             cmd.ExecuteNonQuery();
 
             return cmd.LastInsertedId;

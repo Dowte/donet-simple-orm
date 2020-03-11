@@ -1,20 +1,16 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace DotNetSimpleOrm.Model
 {
     public abstract class Model
     {
-        
         public bool IsExists = false;
 
         protected Model()
         {
             OriginAttributes = new Dictionary<string, object>();
-        }
-
-        public Query.Query Query()
-        {
-            return new Query.Query(this);
         }
 
         public static Query.Query Query<T>()
@@ -29,6 +25,10 @@ namespace DotNetSimpleOrm.Model
             if (!IsExists)
             {
                 ConnectorManager.GetConnector().Insert(this);
+            }
+            else
+            {
+                ConnectorManager.GetConnector().Update(this);
             }
         }
 
@@ -59,6 +59,41 @@ namespace DotNetSimpleOrm.Model
             }
 
             return attributes;
+        }
+
+        public string GetPrimaryColumnName ()
+        {
+            var primaryColumnProperty = GetPrimaryColumnProperty();
+
+            var attrs = primaryColumnProperty.GetCustomAttributes(false);
+            
+            foreach (var attr in attrs)
+            {
+                if (!(attr is ColumnAttribute column)) continue;
+                
+                if (column.Primary) return column.Name ?? Helper.ToSnakeCase(primaryColumnProperty.Name);
+            }
+            
+            throw new Exception("miss primary key on model.");
+        }
+        
+        public PropertyInfo GetPrimaryColumnProperty ()
+        {
+            foreach (var propertyInfo in GetType().GetProperties())
+            {
+                var attrs = propertyInfo.GetCustomAttributes(false);
+                
+                if (attrs.Length <= 0) continue;
+                
+                foreach (var attr in attrs)
+                {
+                    if (!(attr is ColumnAttribute column)) continue;
+                    
+                    if (column.Primary) return propertyInfo;
+                }
+            }
+            
+            throw new Exception("miss primary key on model.");
         }
 
         public void AfterFillByDb ()

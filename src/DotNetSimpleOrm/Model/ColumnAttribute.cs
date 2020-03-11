@@ -6,5 +6,7 @@ namespace DotNetSimpleOrm.Model
     public class ColumnAttribute: Attribute
     {
         public string Name = null;
+
+        public bool Primary = false;
     }
 }

@@ -4,7 +4,7 @@ namespace DonNetSimpleOrmTest.Stub
 {
     public class Admin : Model
     {
-        [Column]
+        [Column(Primary = true)]
         public int Id { get; set; }
         
         [Column(Name = "user_name")]

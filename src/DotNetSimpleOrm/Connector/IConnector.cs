@@ -4,10 +4,12 @@ namespace DotNetSimpleOrm.Connector
 {
     public interface IConnector
     {
-        Entity FindOne (string sql);
+        Entity FindOne (Query.Query query);
 
-        IEnumerable<Entity> FindAll (string sql);
+        IEnumerable<Entity> FindAll (Query.Query query);
 
         long Insert (Model.Model model);
+        
+        long Update (Model.Model model);
     }
 }
